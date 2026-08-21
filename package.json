@@ -15,7 +15,9 @@
     "agent:demo": "node demo/agent-demo.js",
     "simple-demo": "node demo/simple-demo.js",
     "demo": "node demo/complete-demo.js",
-    "test": "node tests/test-adapter.js",
+    "test": "node tests/eligibility-analyzer.test.js",
+    "test:eligibility": "node tests/eligibility-analyzer.test.js",
+    "verify:gemini": "node tests/verify-gemini.js",
     "test:integration": "node tests/integration-test.js"
   },
   "dependencies": {

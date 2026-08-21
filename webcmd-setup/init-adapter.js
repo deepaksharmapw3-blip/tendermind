@@ -1,4 +1,10 @@
-const { exec } = require("child_process");
+const { execFile } = require("child_process");
+const { promisify } = require("util");
+
+const execFileAsync = promisify(execFile);
+const webcmdExecutable = process.platform === "win32" ? "webcmd.cmd" : "webcmd";
+const webcmdOptions = process.platform === "win32" ? { shell: true } : {};
+const ADAPTER = "wbtenders/search";
 
 async function initWebcmdAdapters() {
   console.log(`
@@ -8,44 +14,27 @@ async function initWebcmdAdapters() {
 ╚════════════════════════════════════════════════════════════════╝
   `);
 
-  console.log("\n[1/3] Creating session...");
-  exec("webcmd session create -f json", (err, stdout) => {
-    if (err) {
-      console.error("Session creation failed. Ensure Webcmd is installed:");
-      console.log("  npm install -g @agentrhq/webcmd");
-      return;
-    }
+  try {
+    console.log("\n[1/2] Initializing browser adapter...");
+    console.log(`Ensuring ${ADAPTER} is available in Webcmd's local adapter store...\n`);
+    const init = await execFileAsync(webcmdExecutable, ["browser", "init", ADAPTER], webcmdOptions);
+    if (init.stdout.trim()) console.log(init.stdout.trim());
 
-    const session = JSON.parse(stdout);
-    console.log(`✓ Session: ${session.id}\n`);
+    console.log("\n[2/2] Verifying adapter registration...");
+    const listed = await execFileAsync(webcmdExecutable, ["list", "-f", "json"], webcmdOptions);
+    const commands = JSON.parse(listed.stdout);
+    const adapter = commands.find((command) => command.command === "wbtenders/search");
+    if (!adapter) throw new Error(`Webcmd did not register ${ADAPTER}.`);
 
-    console.log("[2/3] Initializing browser adapter...");
-    console.log("This will launch a real browser to explore WBTenders...\n");
-
-    const initCmd = `webcmd browser init wbtenders`;
-    exec(initCmd, (err, stdout) => {
-      if (err) {
-        console.error("Browser init failed:", err.message);
-        console.log("\nNote: If WBTenders is blocked by your network,");
-        console.log("the demo will use fallback mock data.");
-        return;
-      }
-
-      console.log(stdout);
-      console.log("\n[3/3] Verifying adapters...");
-      exec("webcmd list | grep wbtenders", (err, stdout) => {
-        if (err) {
-          console.log("⚠ Adapters not yet created. They'll be created on first search.\n");
-        } else {
-          console.log("✓ Adapters ready:\n" + stdout);
-        }
-
-        console.log("\nNext steps:");
-        console.log("  npm run demo           # Run TenderMind demo");
-        console.log("  webcmd wbtenders search --query 'CCTV'  # Use learned command");
-      });
-    });
-  });
+    console.log(`✓ Adapter ready: ${adapter.command}`);
+    console.log("\nNext steps:");
+    console.log("  npm run demo");
+    console.log("  webcmd wbtenders search --query 'CCTV' --location 'Kolkata' -f json");
+  } catch (error) {
+    console.error("\nWebcmd adapter initialization failed:", error.message);
+    console.error("Ensure Webcmd is installed: npm install -g @agentrhq/webcmd");
+    process.exitCode = 1;
+  }
 }
 
 initWebcmdAdapters();

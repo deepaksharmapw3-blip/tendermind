@@ -1,45 +1,66 @@
+const ANALYSIS_SCHEMA = {
+  matchScore: "number from 0 to 100",
+  eligibilityStatus: "eligible, possibly_eligible, or not_eligible",
+  recommendation: "short bid/no-bid recommendation",
+  reasoning: "brief explanation of the assessment",
+  evidence: [{ requirement: "requirement", finding: "evidence from tender or user profile", status: "met, unmet, or unknown" }],
+  risks: ["specific risk or missing information"]
+};
+
 class EligibilityAnalyzer {
   constructor(geminiClient) {
     this.gemini = geminiClient;
   }
 
   async analyze(tender, requirements) {
+    const base = {
+      tender_id: tender.id,
+      title: tender.title,
+      organization: tender.organization,
+      value: tender.value,
+      timestamp: new Date().toISOString()
+    };
+
     try {
-      const matchScore = this.calculateScore(tender, requirements);
-      return {
-        tender_id: tender.id,
-        title: tender.title,
-        organization: tender.organization,
-        value: tender.value,
-        matchScore: matchScore,
-        eligibilityStatus: matchScore > 80 ? "eligible" : matchScore > 60 ? "possibly_eligible" : "not_eligible",
-        recommendation: this.getRecommendation(matchScore),
-        timestamp: new Date().toISOString()
-      };
+      const assessment = await this.gemini.analyzeJson(this.buildPrompt(tender, requirements));
+      return { ...base, ...this.validateAssessment(assessment), analysisSource: "gemini" };
     } catch (error) {
+      // Never substitute a rule-based result for an AI assessment.
       return {
-        tender_id: tender.id,
-        matchScore: 0,
-        error: error.message
+        ...base,
+        matchScore: null,
+        eligibilityStatus: "analysis_unavailable",
+        recommendation: "Eligibility analysis is unavailable. Add GEMINI_API_KEY and retry.",
+        reasoning: null,
+        evidence: [],
+        risks: [error.message],
+        analysisSource: "unavailable"
       };
     }
   }
 
-  calculateScore(tender, requirements) {
-    let score = 50;
-    
-    if (requirements.experience && requirements.experience >= 5) score += 20;
-    if (requirements.turnover && requirements.turnover.includes('25')) score += 15;
-    if (requirements.location && tender.location.toLowerCase().includes('kolkata')) score += 15;
-    
-    return Math.min(score, 100);
+  buildPrompt(tender, requirements) {
+    return `You are a procurement eligibility analyst. Assess whether the company profile can bid for the tender using ONLY the supplied data. Do not infer missing credentials. Return JSON only, with no markdown, matching this schema:\n${JSON.stringify(ANALYSIS_SCHEMA)}\n\nCompany profile:\n${JSON.stringify(requirements, null, 2)}\n\nTender:\n${JSON.stringify(tender, null, 2)}\n\nScoring guidance: 80-100 = strong documented fit; 60-79 = plausible fit with verification needed; below 60 = material mismatch or unmet requirement. Evidence must name the requirement and cite the supplied profile or tender field. Mark absent information as unknown.`;
   }
 
-  getRecommendation(score) {
-    if (score > 85) return "Highly recommended. Apply immediately.";
-    if (score > 70) return "Good match. Review requirements carefully.";
-    if (score > 50) return "Possible match. Check eligibility criteria.";
-    return "Not recommended.";
+  validateAssessment(assessment) {
+    const score = Number(assessment.matchScore);
+    if (!Number.isFinite(score)) throw new Error("Gemini response did not include a numeric matchScore.");
+
+    const statuses = new Set(["eligible", "possibly_eligible", "not_eligible"]);
+    if (!statuses.has(assessment.eligibilityStatus)) throw new Error("Gemini response included an invalid eligibility status.");
+    if (typeof assessment.recommendation !== "string" || typeof assessment.reasoning !== "string") {
+      throw new Error("Gemini response was missing its recommendation or reasoning.");
+    }
+
+    return {
+      matchScore: Math.max(0, Math.min(100, Math.round(score))),
+      eligibilityStatus: assessment.eligibilityStatus,
+      recommendation: assessment.recommendation,
+      reasoning: assessment.reasoning,
+      evidence: Array.isArray(assessment.evidence) ? assessment.evidence : [],
+      risks: Array.isArray(assessment.risks) ? assessment.risks : []
+    };
   }
 }
 

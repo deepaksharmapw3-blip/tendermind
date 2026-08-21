@@ -31,7 +31,13 @@ async function run() {
     assert.equal(valid.statusCode, 200);
     assert.equal(valid.body.status, "success");
     assert.ok(Array.isArray(valid.body.results));
-    assert.ok(valid.body.results[0].matchScore >= 0);
+    assert.ok(["gemini", "unavailable"].includes(valid.body.results[0].analysisSource));
+    if (valid.body.results[0].analysisSource === "gemini") {
+      assert.ok(valid.body.results[0].matchScore >= 0);
+      assert.ok(Array.isArray(valid.body.results[0].evidence));
+    } else {
+      assert.equal(valid.body.results[0].matchScore, null);
+    }
     console.log("Integration API test passed.");
   } finally {
     server.close();
