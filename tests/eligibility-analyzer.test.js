@@ -40,6 +40,17 @@ async function run() {
   assert.equal(unavailable.analysisSource, "unavailable");
   assert.equal(unavailable.matchScore, null);
   assert.equal(unavailable.eligibilityStatus, "analysis_unavailable");
+  
+  // Test deepAnalyze graceful degradation
+  const deepUnavailable = await new EligibilityAnalyzer({
+    async analyzeWithReasoning() { throw new Error("Gemini is not configured"); }
+  }).deepAnalyze(tender, requirements);
+  
+  assert.equal(deepUnavailable.analysisSource, "gemini_advanced");
+  assert.equal(deepUnavailable.status, "error");
+  assert.equal(deepUnavailable.matchScore, null);
+  assert.equal(deepUnavailable.eligibilityStatus, "analysis_unavailable");
+  
   console.log("Eligibility analyzer tests passed.");
 }
 

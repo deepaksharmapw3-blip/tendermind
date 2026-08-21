@@ -9,6 +9,10 @@ class TenderMindAgent {
     this.analyzer = new EligibilityAnalyzer(geminiClient);
   }
 
+  /* ───────────────────────────────────────────────
+     QUICK — search + basic eligibility (unchanged)
+  ─────────────────────────────────────────────── */
+
   async execute(userRequest) {
     console.log("\n╔═══════════════════════════════════════════╗");
     console.log("║   TenderMind Agent - Webcmd Learning      ║");
@@ -48,6 +52,30 @@ class TenderMindAgent {
     } catch (error) {
       console.error("\n✗ Agent error:", error.message);
       return { status: "error", error: error.message };
+    }
+  }
+
+  /* ───────────────────────────────────────────────
+     DEEP — multi-stage reasoning for one tender
+  ─────────────────────────────────────────────── */
+
+  async executeDeepAnalysis(tender, companyProfile) {
+    console.log("\n╔═══════════════════════════════════════════╗");
+    console.log("║   TenderMind — Deep Reasoning Analysis    ║");
+    console.log("╚═══════════════════════════════════════════╝\n");
+
+    try {
+      console.log(`[Deep] Analyzing: ${tender.title || tender.id}`);
+      const result = await this.analyzer.deepAnalyze(tender, companyProfile);
+      console.log(`[Deep] Complete — ${result.status}\n`);
+      return result;
+    } catch (error) {
+      console.error("[Deep] Error:", error.message);
+      return {
+        status: "error",
+        error: error.message,
+        analysisSource: "gemini_advanced"
+      };
     }
   }
 }
