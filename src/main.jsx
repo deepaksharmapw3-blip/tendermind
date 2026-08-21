@@ -456,6 +456,41 @@ function TenderCard({
           "Review the tender documents before applying."}
       </p>
 
+      {tender?.reasoning && (
+        <div className="reasoning-section">
+          <strong>Analysis:</strong> {tender.reasoning}
+        </div>
+      )}
+
+      {tender?.evidence && tender.evidence.length > 0 && (
+        <div className="evidence-section">
+          <h4>📋 Evidence</h4>
+          <ul className="evidence-list">
+            {tender.evidence.map((item, i) => (
+              <li key={i} className={`evidence-item evidence-${item.status}`}>
+                <span className="evidence-icon">
+                  {item.status === "met" ? "✓" : item.status === "unmet" ? "✗" : "?"}
+                </span>
+                <div className="evidence-content">
+                  <strong>{item.requirement}:</strong> {item.finding}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {tender?.risks && tender.risks.length > 0 && (
+        <div className="risks-section">
+          <h4>⚠️ Risks to Consider</h4>
+          <ul className="risks-list">
+            {tender.risks.map((risk, i) => (
+              <li key={i}>{risk}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <button
         type="button"
         className="view-action-button"

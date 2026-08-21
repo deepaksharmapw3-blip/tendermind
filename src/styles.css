@@ -49,6 +49,132 @@ textarea:focus { border-color: #1c5948; box-shadow: 0 0 0 3px rgba(28, 89, 72, .
 .metadata span { display: grid; gap: 4px; font-size: 14px; }
 .metadata b { color: #9a9c93; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .recommendation { margin: 17px 0 0; color: #687168; font-size: 13px; line-height: 1.5; }
+
+/* Evidence and Risks Sections */
+.reasoning-section {
+  margin: 14px 0;
+  padding: 12px 16px;
+  background: #f9faf8;
+  border-left: 3px solid #1c5948;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #3a473a;
+}
+
+.reasoning-section strong {
+  color: #1c5948;
+  font-weight: 600;
+}
+
+.evidence-section,
+.risks-section {
+  margin: 16px 0 0;
+}
+
+.evidence-section h4,
+.risks-section h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a473a;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.evidence-list,
+.risks-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evidence-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  background: #f9faf8;
+  border-radius: 4px;
+  border-left: 3px solid #cbd5c9;
+}
+
+.evidence-item.evidence-met {
+  border-left-color: #4a9d6f;
+  background: #f0f7f3;
+}
+
+.evidence-item.evidence-unmet {
+  border-left-color: #c85c31;
+  background: #fef5f2;
+}
+
+.evidence-item.evidence-unknown {
+  border-left-color: #d4a548;
+  background: #fef9f0;
+}
+
+.evidence-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50%;
+  margin-top: 1px;
+}
+
+.evidence-met .evidence-icon {
+  background: #4a9d6f;
+  color: white;
+}
+
+.evidence-unmet .evidence-icon {
+  background: #c85c31;
+  color: white;
+}
+
+.evidence-unknown .evidence-icon {
+  background: #d4a548;
+  color: white;
+}
+
+.evidence-content {
+  flex: 1;
+  color: #3a473a;
+}
+
+.evidence-content strong {
+  color: #1c5948;
+  font-weight: 600;
+}
+
+.risks-list li {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #8b5a3c;
+  padding: 8px 12px 8px 32px;
+  background: #fef9f0;
+  border-left: 3px solid #d4a548;
+  border-radius: 4px;
+  position: relative;
+}
+
+.risks-list li::before {
+  content: "⚠";
+  position: absolute;
+  left: 10px;
+  font-size: 14px;
+}
+
 .empty-state { color: #687168; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
