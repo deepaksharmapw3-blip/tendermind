@@ -4,6 +4,7 @@
 
 Stop manually searching for government tenders. Let TenderMind find opportunities you can actually win—with AI-backed eligibility evidence.
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Try_Now-brightgreen)](https://tendermind-webcmd-tender-intelligence.ai.studio)
 [![Demo Video](https://img.shields.io/badge/🎥_Demo-Watch_Video-red)](https://youtube.com/placeholder)
 [![Hackathon](https://img.shields.io/badge/🏆_AgentForge-2026-blue)](https://slab.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -355,10 +356,23 @@ First search takes 6-10 seconds (Gemini API call). All subsequent searches are *
 - [x] Evidence-based scoring
 - [x] Risk detection
 - [x] Caching for performance
+- [x] **Production deployment** (AI Studio)
 - [ ] Multi-portal support (GEM, tenders.gov.in)
 - [ ] Email alerts for new tenders
 - [ ] PDF bid document generation
 - [ ] Mobile app
+
+---
+
+## 🌐 Live Deployment
+
+**🚀 Try TenderMind Now:** [https://tendermind-webcmd-tender-intelligence.ai.studio](https://tendermind-webcmd-tender-intelligence.ai.studio)
+
+The application is deployed on Google AI Studio with:
+- ✅ Real-time Webcmd browser automation
+- ✅ Gemini API integration
+- ✅ Production-grade caching
+- ✅ Fallback to mock data when live tenders unavailable
 
 ---
 
